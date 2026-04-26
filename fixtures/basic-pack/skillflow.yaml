@@ -1,0 +1,23 @@
+schema_version: "1.0"
+name: basic-pack
+version: "0.1.0"
+description: Basic fixture skillset for tests.
+config:
+  export_targets:
+    - generic
+  install_mode: copy
+skills:
+  - name: summarize
+    source: local:./skills/summarize
+    description: Summarize source material into a concise, practical brief for any domain.
+    tags:
+      - writing
+    requires:
+      skills: []
+      tools: []
+      files: []
+collections:
+  - name: default
+    required:
+      - summarize
+    recommended: []

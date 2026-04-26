@@ -1,0 +1,49 @@
+{
+  "name": "skillflow",
+  "version": "0.1.0",
+  "description": "Tool-agnostic skillset manager with last-mile learning from human edits.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "skillflow": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "prepare": "npm run build",
+    "test": "vitest run",
+    "check": "npm run build && npm test"
+  },
+  "keywords": [
+    "agent-skills",
+    "skillsets",
+    "ai",
+    "last-mile",
+    "prompt-engineering",
+    "cli"
+  ],
+  "author": "Dan Velton",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "commander": "^14.0.3",
+    "diff": "^9.0.0",
+    "yaml": "^2.8.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/diff": "^7.0.2",
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  }
+}
