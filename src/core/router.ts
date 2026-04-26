@@ -4,6 +4,7 @@ import { TARGETS, parseTargets } from "./exporters.js";
 import type { SkillflowLock } from "./types.js";
 
 export function renderRouterSkill(lock: SkillflowLock, name: string): string {
+  const includesPersonal = lock.skills.some((skill) => skill.scope === "personal");
   const lines = [
     "---",
     `name: ${name}`,
@@ -14,8 +15,12 @@ export function renderRouterSkill(lock: SkillflowLock, name: string): string {
     "",
     "Use this router to choose the most relevant skill. Prefer a specific skill over general guidance when a task clearly matches one of the descriptions below.",
     "",
-    "| Skill | Description | Tags | Requirements |",
-    "| --- | --- | --- | --- |",
+    includesPersonal
+      ? "Project skills take precedence over personal skills when they conflict."
+      : "Use project skills as the authoritative instructions for this skillset.",
+    "",
+    "| Skill | Scope | Description | Tags | Requirements |",
+    "| --- | --- | --- | --- | --- |",
   ];
 
   for (const skill of lock.skills) {
@@ -25,7 +30,7 @@ export function renderRouterSkill(lock: SkillflowLock, name: string): string {
       ...skill.requires.tools.map((item) => `tool:${item}`),
       ...skill.requires.files.map((item) => `file:${item}`),
     ].join(", ") || "-";
-    lines.push(`| ${skill.name} | ${skill.description ?? ""} | ${tags} | ${requirements} |`);
+    lines.push(`| ${skill.name} | ${skill.scope} | ${skill.description ?? ""} | ${tags} | ${requirements} |`);
   }
 
   lines.push(

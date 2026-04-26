@@ -12,8 +12,8 @@ export interface ValidationIssue {
 
 export async function validateProject(manifestPath: string): Promise<ValidationIssue[]> {
   const issues: ValidationIssue[] = [];
-  const projectRoot = path.dirname(manifestPath);
   const manifest = await readManifest(manifestPath);
+  const stateDir = stateDirFor(manifestPath, manifest.scope);
   const names = new Set<string>();
   for (const skill of manifest.skills) {
     if (names.has(skill.name)) {
@@ -43,7 +43,7 @@ export async function validateProject(manifestPath: string): Promise<ValidationI
   }
 
   for (const skill of lock.skills) {
-    const installed = skillInstallPath(stateDirFor(manifestPath), skill.name);
+    const installed = skillInstallPath(stateDir, skill.name);
     if (!(await pathExists(installed))) {
       issues.push({ level: "error", message: `Installed skill missing: ${skill.name}` });
       continue;
@@ -64,6 +64,5 @@ export async function validateProject(manifestPath: string): Promise<ValidationI
     }
   }
 
-  void projectRoot;
   return issues;
 }

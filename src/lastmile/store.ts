@@ -3,43 +3,43 @@ import { readJson, writeJson, writeText, pathExists, readText, ensureDir } from 
 import { shortHash } from "../core/hash.js";
 import type { LearnedPattern, Snapshot } from "./types.js";
 
-export function feedbackRoot(projectRoot: string): string {
-  return path.join(projectRoot, ".skillflow", "feedback");
+export function feedbackRoot(stateDir: string): string {
+  return path.join(stateDir, "feedback");
 }
 
-export function skillFeedbackRoot(projectRoot: string, skill: string): string {
-  return path.join(feedbackRoot(projectRoot), skill);
+export function skillFeedbackRoot(stateDir: string, skill: string): string {
+  return path.join(feedbackRoot(stateDir), skill);
 }
 
-export function snapshotsPath(projectRoot: string, skill: string): string {
-  return path.join(skillFeedbackRoot(projectRoot, skill), "snapshots.json");
+export function snapshotsPath(stateDir: string, skill: string): string {
+  return path.join(skillFeedbackRoot(stateDir, skill), "snapshots.json");
 }
 
-export function patternsPath(projectRoot: string, skill: string): string {
-  return path.join(skillFeedbackRoot(projectRoot, skill), "patterns.json");
+export function patternsPath(stateDir: string, skill: string): string {
+  return path.join(skillFeedbackRoot(stateDir, skill), "patterns.json");
 }
 
-export async function readSnapshots(projectRoot: string, skill: string): Promise<Snapshot[]> {
-  return readJson<Snapshot[]>(snapshotsPath(projectRoot, skill), []);
+export async function readSnapshots(stateDir: string, skill: string): Promise<Snapshot[]> {
+  return readJson<Snapshot[]>(snapshotsPath(stateDir, skill), []);
 }
 
-export async function writeSnapshots(projectRoot: string, skill: string, snapshots: Snapshot[]): Promise<void> {
-  await writeJson(snapshotsPath(projectRoot, skill), snapshots);
+export async function writeSnapshots(stateDir: string, skill: string, snapshots: Snapshot[]): Promise<void> {
+  await writeJson(snapshotsPath(stateDir, skill), snapshots);
 }
 
-export async function latestSnapshot(projectRoot: string, skill: string): Promise<Snapshot | undefined> {
-  const snapshots = await readSnapshots(projectRoot, skill);
+export async function latestSnapshot(stateDir: string, skill: string): Promise<Snapshot | undefined> {
+  const snapshots = await readSnapshots(stateDir, skill);
   return snapshots.sort((a, b) => b.capturedAt.localeCompare(a.capturedAt))[0];
 }
 
-export async function findSnapshot(projectRoot: string, skill: string, id?: string): Promise<Snapshot | undefined> {
-  if (!id || id === "latest") return latestSnapshot(projectRoot, skill);
-  return (await readSnapshots(projectRoot, skill)).find((snapshot) => snapshot.id === id);
+export async function findSnapshot(stateDir: string, skill: string, id?: string): Promise<Snapshot | undefined> {
+  if (!id || id === "latest") return latestSnapshot(stateDir, skill);
+  return (await readSnapshots(stateDir, skill)).find((snapshot) => snapshot.id === id);
 }
 
-export async function captureDraft(projectRoot: string, skill: string, sourcePath: string, label?: string): Promise<Snapshot> {
+export async function captureDraft(stateDir: string, skill: string, sourcePath: string, label?: string): Promise<Snapshot> {
   const content = await readText(sourcePath);
-  const snapshots = await readSnapshots(projectRoot, skill);
+  const snapshots = await readSnapshots(stateDir, skill);
   const now = new Date().toISOString();
   const snapshot: Snapshot = {
     id: shortHash(`${skill}:${sourcePath}:${now}:${content}`),
@@ -51,33 +51,33 @@ export async function captureDraft(projectRoot: string, skill: string, sourcePat
     content,
   };
   snapshots.push(snapshot);
-  await writeSnapshots(projectRoot, skill, snapshots);
+  await writeSnapshots(stateDir, skill, snapshots);
   return snapshot;
 }
 
-export async function readPatterns(projectRoot: string, skill: string): Promise<LearnedPattern[]> {
-  return readJson<LearnedPattern[]>(patternsPath(projectRoot, skill), []);
+export async function readPatterns(stateDir: string, skill: string): Promise<LearnedPattern[]> {
+  return readJson<LearnedPattern[]>(patternsPath(stateDir, skill), []);
 }
 
-export async function writePatterns(projectRoot: string, skill: string, patterns: LearnedPattern[]): Promise<void> {
-  await writeJson(patternsPath(projectRoot, skill), patterns);
+export async function writePatterns(stateDir: string, skill: string, patterns: LearnedPattern[]): Promise<void> {
+  await writeJson(patternsPath(stateDir, skill), patterns);
 }
 
-export async function writeCandidates(projectRoot: string, skill: string, markdown: string): Promise<string> {
-  const filePath = path.join(skillFeedbackRoot(projectRoot, skill), "candidates.md");
+export async function writeCandidates(stateDir: string, skill: string, markdown: string): Promise<string> {
+  const filePath = path.join(skillFeedbackRoot(stateDir, skill), "candidates.md");
   await writeText(filePath, markdown);
   return filePath;
 }
 
-export async function writeOverlay(projectRoot: string, skill: string, scope: string, markdown: string): Promise<string> {
-  const filePath = path.join(projectRoot, ".skillflow", "overlays", scope, `${skill}.md`);
+export async function writeOverlay(stateDir: string, skill: string, scope: string, markdown: string): Promise<string> {
+  const filePath = path.join(stateDir, "overlays", scope, `${skill}.md`);
   await writeText(filePath, markdown);
   return filePath;
 }
 
-export async function ensureFeedback(projectRoot: string, skill: string): Promise<void> {
-  await ensureDir(skillFeedbackRoot(projectRoot, skill));
-  if (!(await pathExists(patternsPath(projectRoot, skill)))) {
-    await writePatterns(projectRoot, skill, []);
+export async function ensureFeedback(stateDir: string, skill: string): Promise<void> {
+  await ensureDir(skillFeedbackRoot(stateDir, skill));
+  if (!(await pathExists(patternsPath(stateDir, skill)))) {
+    await writePatterns(stateDir, skill, []);
   }
 }

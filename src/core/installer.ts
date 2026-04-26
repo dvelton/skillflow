@@ -24,7 +24,7 @@ function normalizeRequires(skill: SkillEntry): SkillLockEntry["requires"] {
 export async function installSkillset(manifestPath: string): Promise<InstallResult> {
   const projectRoot = path.dirname(manifestPath);
   const manifest = await readManifest(manifestPath);
-  const stateDir = stateDirFor(manifestPath);
+  const stateDir = stateDirFor(manifestPath, manifest.scope);
   const installed: SkillLockEntry[] = [];
   const names = new Set<string>();
 
@@ -48,6 +48,7 @@ export async function installSkillset(manifestPath: string): Promise<InstallResu
 
     installed.push({
       name: skill.name,
+      scope: manifest.scope,
       source: skill.source,
       resolved_source: resolution.resolvedSource,
       resolved_ref: resolution.resolvedRef,
@@ -64,6 +65,7 @@ export async function installSkillset(manifestPath: string): Promise<InstallResu
 
   const lock: SkillflowLock = {
     lockfile_version: 1,
+    scope: manifest.scope,
     manifest: {
       name: manifest.name,
       version: manifest.version,

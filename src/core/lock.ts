@@ -1,12 +1,13 @@
 import path from "node:path";
 import YAML from "yaml";
 import { z } from "zod";
-import type { SkillflowLock } from "./types.js";
+import { skillflowScopeSchema, type SkillflowLock } from "./types.js";
 import { pathExists, readText, writeText } from "./files.js";
 import { SkillflowError } from "../utils/errors.js";
 
 const lockEntrySchema = z.object({
   name: z.string().min(1),
+  scope: skillflowScopeSchema.default("project"),
   source: z.string().min(1),
   resolved_source: z.string().min(1),
   resolved_ref: z.string().optional(),
@@ -26,6 +27,7 @@ const lockEntrySchema = z.object({
 
 const lockSchema = z.object({
   lockfile_version: z.literal(1),
+  scope: skillflowScopeSchema.default("project"),
   manifest: z.object({
     name: z.string().min(1),
     version: z.string().min(1),

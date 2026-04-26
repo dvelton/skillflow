@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const sourceSchema = z.string().min(1);
+export const skillflowScopeSchema = z.enum(["project", "personal"]);
 
 const requiresSchema = z.object({
   skills: z.array(z.string().min(1)).default([]),
@@ -31,6 +32,7 @@ export const collectionSchema = z.object({
 export const manifestSchema = z.object({
   schema_version: z.string().default("1.0"),
   name: z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/),
+  scope: skillflowScopeSchema.default("project"),
   version: z.string().min(1).default("0.1.0"),
   description: z.string().min(1),
   skills: z.array(skillEntrySchema).default([]),
@@ -38,12 +40,15 @@ export const manifestSchema = z.object({
   config: z.object({
     export_targets: z.array(z.string()).default([]),
     install_mode: z.enum(["copy", "symlink"]).default("copy"),
+    include_personal: z.boolean().default(false),
+    personal_overlays: z.enum(["allow", "block"]).default("allow"),
   }).partial().default({}),
 });
 
 export type SkillEntry = z.infer<typeof skillEntrySchema>;
 export type SkillflowManifest = z.infer<typeof manifestSchema>;
 export type SkillCollection = z.infer<typeof collectionSchema>;
+export type SkillflowScope = z.infer<typeof skillflowScopeSchema>;
 
 export type SourceKind = "local" | "github";
 
@@ -56,6 +61,7 @@ export interface ParsedSource {
 
 export interface SkillLockEntry {
   name: string;
+  scope: SkillflowScope;
   source: string;
   resolved_source: string;
   resolved_ref?: string;
@@ -75,6 +81,7 @@ export interface SkillLockEntry {
 
 export interface SkillflowLock {
   lockfile_version: 1;
+  scope: SkillflowScope;
   manifest: {
     name: string;
     version: string;

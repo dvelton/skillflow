@@ -26,6 +26,19 @@ export function parseSource(source: string): ParsedSource {
   return { kind: "local", original: source, locator: source };
 }
 
+export function normalizeSourceForManifest(source: string, resolveLocalFrom?: string): string {
+  if (source.startsWith("github:")) return source;
+
+  const hasLocalPrefix = source.startsWith("local:");
+  const locator = hasLocalPrefix ? source.slice("local:".length) : source;
+  if (locator.startsWith("~") || path.isAbsolute(locator)) {
+    return `local:${locator}`;
+  }
+
+  const resolvedLocator = resolveLocalFrom ? path.resolve(resolveLocalFrom, locator) : locator;
+  return `local:${resolvedLocator}`;
+}
+
 export async function resolveSkillSource(cwd: string, skill: SkillEntry, destination: string): Promise<{ resolvedSource: string; resolvedRef?: string }> {
   const parsed = parseSource(skill.source);
   if (parsed.kind === "local") {
