@@ -59,7 +59,7 @@ npm install -g github:dvelton/skillflow
 To pin a release or tag:
 
 ```bash
-npm install -g github:dvelton/skillflow#v0.1.0
+npm install -g github:dvelton/skillflow#v0.2.0
 ```
 
 You can also clone and link locally:

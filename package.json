@@ -1,6 +1,6 @@
 {
   "name": "skillflow",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Tool-agnostic skillset manager with last-mile learning from human edits.",
   "type": "module",
   "private": true,
